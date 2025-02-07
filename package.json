@@ -1,0 +1,43 @@
+{
+    "name": "tauri-sveltekit-admin-template",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "vite dev",
+        "build": "vite build",
+        "preview": "vite preview",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "lint": "prettier --plugin-search-dir . --check . && eslint .",
+        "format": "prettier --plugin-search-dir . --write .",
+        "tauri": "tauri"
+    },
+    "devDependencies": {
+        "@sveltejs/adapter-static": "^2.0.2",
+        "@sveltejs/kit": "^1.22.3",
+        "@tailwindcss/forms": "^0.5.3",
+        "@tailwindcss/line-clamp": "^0.4.4",
+        "@tailwindcss/typography": "^0.5.9",
+        "@tauri-apps/cli": "^1.5.6",
+        "@typescript-eslint/eslint-plugin": "^5.45.0",
+        "@typescript-eslint/parser": "^5.45.0",
+        "autoprefixer": "^10.4.14",
+        "eslint": "^8.28.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-svelte": "^2.30.0",
+        "postcss": "^8.4.24",
+        "prettier": "^2.8.0",
+        "prettier-plugin-svelte": "^2.10.1",
+        "svelte": "^4.0.5",
+        "svelte-check": "^3.4.6",
+        "tailwindcss": "^3.3.2",
+        "tslib": "^2.6.0",
+        "tw-elements": "^1.0.0-beta2",
+        "typescript": "^5.0.2",
+        "vite": "^4.4.4"
+    },
+    "type": "module",
+    "dependencies": {
+        "@tauri-apps/api": "^1.5.1"
+    }
+}
