@@ -10,6 +10,23 @@ use serde::Serialize;
 use std::sync::Mutex;
 use lazy_static::lazy_static;
 
+#[derive(Debug)]
+pub enum InputError {
+    NegatedAnnotation, // we skip negated annotations
+    MalformedLine(String),
+    ParsingError(String),   // Another error type
+    // Add other error kinds as needed
+}
+
+impl std::fmt::Display for InputError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match *self {
+            InputError::NegatedAnnotation => write!(f, "Negated annotation detected"),
+            InputError::MalformedLine(ref s) => write!(f, "Malformed line: {}", s), 
+            InputError::ParsingError(ref s) => write!(f, "Parsing error: {}", s), 
+        }
+    }
+}
 
 // Use `lazy_static` to keep the dataset in memory
 lazy_static! {
@@ -33,8 +50,11 @@ enum GoTermRelation {
     InvolvedIn,
     ActsUpstreamOf,
     ActsWithin,
+    ActsUpstreamOfOrWithin,
+    ActsUpstreamOfNegativeEffect,
     IsActiveIn,
     LocatedIn,
+    ColocalizesWith,
     PartOf
 }
 
@@ -47,17 +67,23 @@ impl std::fmt::Display for GoTermRelation {
             GoTermRelation::ActsUpstreamOf => "acts_upstream_of",
             GoTermRelation::ActsWithin => "acts_within",
             GoTermRelation::IsActiveIn => "is_active_in",
+            GoTermRelation::ActsUpstreamOfOrWithin => "acts_upstream_of_or_within",
+            GoTermRelation::ActsUpstreamOfNegativeEffect => "acts_upstream_of_negative_effect",
             GoTermRelation::LocatedIn => "located_in",
-            GoTermRelation::PartOf => "part_of"
+            GoTermRelation::PartOf => "part_of",
+            GoTermRelation::ColocalizesWith => "colocalizes_with",
         };
         write!(f, "{}", relation_str)
     }
 }
 
 impl FromStr for GoTermRelation {
-    type Err = String;
+    type Err = InputError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Self, InputError> {
+        if s.starts_with("NOT") {
+            return Err(InputError::NegatedAnnotation);
+        }
         match s {
             "enables" => Ok(GoTermRelation::Enables),
             "contributes_to" => Ok(GoTermRelation::ContributesTo),
@@ -65,11 +91,16 @@ impl FromStr for GoTermRelation {
             "located_in" => Ok(GoTermRelation::LocatedIn),
             "acts_upstream_of" => Ok(GoTermRelation::ActsUpstreamOf),
             "acts_within" => Ok(GoTermRelation::ActsWithin),
+            "acts_upstream_of_or_within" => Ok(GoTermRelation::ActsUpstreamOfOrWithin),
+            "acts_upstream_of_negative_effect" => Ok(GoTermRelation::ActsUpstreamOfNegativeEffect),
             "is_active_in" => Ok(GoTermRelation::IsActiveIn),
             "part_of" => Ok(GoTermRelation::PartOf),
-            _ => Err(format!("Did not recognize '{}' as a GOA relation.",s)),
+            "colocalizes_with" => Ok(GoTermRelation::ColocalizesWith),
+            _ => Err(InputError::ParsingError(format!("Did not recognize '{}' as a GOA relation.",s))),
         }
     }
+    
+   
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
@@ -85,9 +116,9 @@ enum EviCode {
 }
 
 impl FromStr for EviCode {
-    type Err = String;
+    type Err = InputError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Self, InputError> {
         match s {
             "EXP" | "IDA" | "IPI" | "IMP" | "IGI" | "IEP" => Ok(EviCode::EXP),
             "HTP" | "HDA" | "HMP" | "HGI" | "HEP"  => Ok(EviCode::HTP),
@@ -97,7 +128,7 @@ impl FromStr for EviCode {
             "IC" => Ok(EviCode::IC),
             "ND" => Ok(EviCode::ND),
             "IEA" => Ok(EviCode::IEA),
-            _ => Err(format!("Did not recognize '{}' as EvidenceCode.",s)),
+            _ => Err(InputError::ParsingError(format!("Did not recognize '{}' as EvidenceCode.",s))),
         }
     }
 }
@@ -109,14 +140,14 @@ enum Aspect {
 }
 
 impl FromStr for Aspect {
-    type Err = String;
+    type Err = InputError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Self, InputError> {
         match s {
             "F" => Ok(Aspect::F),
             "P" => Ok(Aspect::P),
             "C" => Ok(Aspect::C),
-            _ => Err(format!("Did not recognize '{}' as Aspect.",s)),
+            _ => Err(InputError::ParsingError(format!("Did not recognize '{}' as Aspect.",s))),
         }
     }
 }
@@ -133,13 +164,13 @@ impl TermId {
         }
     }
 
-    pub fn from_curie(curie: &str) -> Result<Self, String> {
+    pub fn from_curie(curie: &str) -> Result<Self, InputError> {
         let tokens: Vec<&str> = curie.split(':').collect();
         if tokens.iter().count() != 2 {
-            return Err(format!("CURIE expected to have 2 fields, but had {} fields: {}", 
-                tokens.iter().count(), curie));
+            return Err(InputError::ParsingError(format!("CURIE expected to have 2 fields, but had {} fields: {}", 
+                tokens.iter().count(), curie)));
         }
-        Ok( TermId{value: curie.to_string()})
+        Ok(TermId{value: curie.to_string()})
     }
 }
 
@@ -202,7 +233,7 @@ impl AnnotationStat {
 fn annotation_descriptive_stats(go_annots: &Vec<GoAnnot>) -> Vec<AnnotationStat> {
     let mut annots = Vec::new();
     let annot_count = go_annots.len();
-    annots.push(AnnotationStat::from_int("length", annot_count));
+    annots.push(AnnotationStat::from_int("Total annotations", annot_count));
     let unique_symbols: HashSet<_> = go_annots.iter().map(|annot| &annot.gene_product_symbol).collect();
     annots.push(AnnotationStat::from_int("genes", unique_symbols.len()));
     // Count relation types
@@ -219,12 +250,14 @@ fn annotation_descriptive_stats(go_annots: &Vec<GoAnnot>) -> Vec<AnnotationStat>
 
 const GOA_EXPECTED_FIELDS: usize = 17;
 
+
+
 /// Process a line in go-annotation-file-gaf-format-2.2
-fn process_annotation_line(line: &str) -> Result<GoAnnot, String> {
+fn process_annotation_line(line: &str) -> Result<GoAnnot, InputError> {
     let tokens: Vec<&str> = line.split('\t').collect();
     if tokens.iter().count() != GOA_EXPECTED_FIELDS {
-        return Err(format!("GOA lines expected to have {} fields, but line had {} fields: {}", 
-            GOA_EXPECTED_FIELDS, tokens.iter().count(), line));
+        return Err(InputError::MalformedLine(format!("GOA lines expected to have {} fields, but line had {} fields: {}", 
+            GOA_EXPECTED_FIELDS, tokens.iter().count(), line)));
     }
     let gene_product_id = TermId::new(tokens[0], tokens[1]);
     let symbol = tokens[2];
@@ -242,12 +275,8 @@ pub fn process_file(path: String) -> Result<String, String> {
     
     let mut annotations = vec![];
     let mut annotation_stats: Vec<AnnotationStat> = vec![];
-    let mut c = 0;
+    let mut num_negated_annos = 0;
     for line in reader.lines() {
-        c +=1;
-        if c > 100000 {
-            break;
-        }
         match line {
             Ok(content) => {
                 if content.starts_with("!") {
@@ -260,7 +289,12 @@ pub fn process_file(path: String) -> Result<String, String> {
                     let goann = process_annotation_line(&content);
                     match goann {
                         Ok(go_annotation) => annotations.push(go_annotation),
-                        Err(e) => print!("ERROR: {}", e.to_string())
+                        Err(e) => {
+                            match &e {
+                                InputError::NegatedAnnotation => num_negated_annos += 1,
+                                other => println!("{}", other)
+                            }
+                        }
                     }
                 }
             },
@@ -268,10 +302,12 @@ pub fn process_file(path: String) -> Result<String, String> {
         }
     }
     print!("Parsed {} annotations", annotations.len());
+    annotation_stats.push(AnnotationStat::from_int("Negated annotations", num_negated_annos));
     let mut dataset = GO_ANNOTATIONS.lock().unwrap();
     *dataset = annotations.clone(); // Overwrite dataset
-    let mut stats_map = annotation_descriptive_stats(&annotations);
-    serde_json::to_string(&stats_map).map_err(|e| format!("Serialization error: {}", e))
+    let stats_counts = annotation_descriptive_stats(&annotations);
+    annotation_stats.extend(stats_counts);
+    serde_json::to_string(&annotation_stats).map_err(|e| format!("Serialization error: {}", e))
 }
 
 

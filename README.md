@@ -1,17 +1,9 @@
-# Tauri SvelteKit Admin Template
+# Ontologizer
 
-This repository contains a starter template for building Tauri apps using SvelteKit with Tailwind CSS.
+This repository is intended to try features of tauri and SvelteKit.
+It was initialized from the [tauri sveltekit-admin tempalte](https://github.com/deid84/tauri-sveltekit-admin-template),
+ a starter template for building Tauri apps using SvelteKit with Tailwind CSS.
 
-## How to use this template
-
-To use this template, run the following command:
-
-```
-npx degit deid84/tauri-sveltekit-admin-template <target-directory>
-
-```
-
-This will clone the template repository and copy the project to a new directory called `<target-directory>`.
 
 ## Prerequisites
 
@@ -65,9 +57,9 @@ npm run build
 
 This will create a production build of the app in the `build` directory.
 
-## Further reading
 
--   [Tauri guides](https://tauri.app/v1/guides/)
--   [Tauri documentation - Quick Start with SvelteKit](https://tauri.app/v1/guides/getting-started/setup/sveltekit)
--   [Svelte documentation](https://svelte.dev/docs)
--   [SvelteKit documentation](https://kit.svelte.dev)
+# Ontologizer
+
+See [Bauer et al., 2008](https://pubmed.ncbi.nlm.nih.gov/18511468/) for details on the ontologizer. We will be adding functionality gradually.
+
+For now, download the GO annotation file for Homo sapiens from the [GAF download page](https://current.geneontology.org/products/pages/downloads.html). Start the GUI, and open this file.
