@@ -150,20 +150,20 @@ impl Hypergeometric {
         Ok(result.exp())
 	}
 
-    /**
-	 * Calculates P(X &gt; x) where X is the hypergeometric distribution
-	 * with indices N,M,n. If lowerTail is set to true, then P(X &lt;= x)
-	 * is calculated.
-	 *
-	 * @param x number of white balls drawn without replacement
-	 * @param N number of balls in the urn
-	 * @param M number of white balls in the urn
-	 * @param n number of balls drawn from the urn
-	 * @param lowerTail defines if the lower tail should be calculated, i.e., if the
-	 *      parameter is set to true then P(X &lt;= x) is calculated, otherwise P(X &gt; x) is
-	 *      calculated.
-	 * @return the probability
-	 */
+
+    /// phyper - Calculates P(X &gt; x) where X is the hypergeometric distribution with indices N,M,n. 
+    ///
+    /// If lower_tail is set to true, then P(X &lt;= x) is calculated.
+    /// 
+    /// # Parameters
+    /// - `x`:  x number of white balls drawn without replacement
+	/// - `N number of balls in the urn
+	/// - `M number of white balls in the urn
+	/// - `n number of balls drawn from the urn
+	/// - `lower_tail`` if true, then P(X &lt;= x) is calculated, otherwise P(X &gt; x) is calculated.
+	///
+    /// # Returns
+    /// - Returns the density function as a Result. 
 	pub fn phyper(&mut self,  x:usize,  N: usize,  M: usize,  n: usize, lower_tail: bool) -> Result<f64, String> 	{
 		let mut up;
 		let mut p = 0 as f64;
@@ -277,6 +277,24 @@ mod test {
         let our_n_choose_k = result.unwrap();
         assert!(float_eq!(expected, our_n_choose_k, rmax <= 1e-6));
 	}
+
+    #[test]
+    fn test_dhyper_edge() {
+        // We have ten balls, all white, and we draw 10. All ten must be white
+        let mut hgeom = Hypergeometric::new();
+        let result = hgeom.dhyper(10,10,0,10);
+        assert!(result.is_ok());
+        let our_n_choose_k = result.unwrap();
+        assert!(float_eq!(1 as f64, our_n_choose_k, rmax <= 1e-6));
+    }
+
+    #[test]
+    fn test_phyper() {
+        let mut hgeom = Hypergeometric::new();
+        let result = hgeom.phyper(2,1526,4,190,false);
+        // assertTrue(result > 0.0069 && result < 0.0070); -- from ontologizer code.
+        println!("{}", result.unwrap());
+    }
 
 
 }
