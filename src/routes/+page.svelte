@@ -49,7 +49,7 @@
 </script>
 
 <div class="p-5">
-  <h1 class="text-gray-600 dark:text-gray-300 text-5xl">Setup</h1>
+  <h1 class="text-gray-600 text-5xl">Setup</h1>
 </div>
 <div class="card shadow-sm">
   <h2 class="text-lg">GO Annotations</h2>

@@ -7,7 +7,7 @@
 </script>
 
 <div
-    class="h-16 m-6 px-5 py-3 rounded-lg dark:border-gray-700 bg-white dark:bg-gray-800 flex"
+    class="h-16 m-6 px-5 py-3 rounded-lg bg-white flex"
 >
     <ol class="inline-flex items-center space-x-1 md:space-x-3">
         {#each items as item}
@@ -15,7 +15,7 @@
                 {#if item.url != ''}
                     <a
                         href={item.url}
-                        class="inline-flex items-center text-base font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                        class="inline-flex items-center text-base font-medium text-gray-700 hover:text-gray-900"
                     >
                         <svg
                             class="w-4 h-4 mr-2"
@@ -58,7 +58,7 @@
                             {/if}
                         </svg>
                         <span
-                            class="ml-1 text-base font-medium text-gray-500 md:ml-2 dark:text-gray-300"
+                            class="ml-1 text-base font-medium text-gray-500 md:ml-2"
                             >{item.name}</span
                         >
                     </div>

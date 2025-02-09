@@ -4,7 +4,7 @@
 <div class="flex items-center">
     <button
         aria-label="open logs"
-        class="flex items-center m-3 p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full active:bg-gray-300 dark:active:bg-gray-600"
+        class="flex items-center m-3 p-2 text-gray-600 hover:bg-gray-200 rounded-full active:bg-gray-300"
     >
         <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -12,13 +12,13 @@
 </script>
 
 <header
-    class="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-none sticky top-0 flex"
+    class="h-16 bg-white border-b border-gray-200 shadow-sm sticky top-0 flex"
 >
     <!-- Use Menu Icon to open the sidenav -->
     <div class="flex-none">
         <button
             aria-label="open logs"
-            class="flex items-center m-3 p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full active:bg-gray-300 dark:active:bg-gray-600"
+            class="flex items-center m-3 p-2 text-gray-600 hover:bg-gray-200 drounded-full active:bg-gray-300"
             on:click={toggleSidebar}
         >
             <svg

@@ -11,15 +11,15 @@
 >
 	<!-- <div class="flex-none"> -->
 	<div
-		class="flex justify-between text-gray-600 dark:text-gray-300 text-center"
+		class="flex justify-between text-gray-600 text-center"
 	>
 		<div />
 		<div class="m-4 leading-loose">
 			<span>© {date} Copyright:</span>
 			<a
-				class="text-gray-700 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
+				class="text-gray-700 hover:text-gray-600"
 				href="#"
-				target="blank">Your Brand</a
+				target="blank">Ontologizer Team</a
 			>
 		</div>
 		<div class="flex mr-2">

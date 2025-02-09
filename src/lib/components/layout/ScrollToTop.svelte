@@ -1,7 +1,7 @@
 <div class="fixed bottom-4 z-50 right-4">
     <button
         type="button"
-        class="animate-pulse rounded-full bg-gray-300 hover:bg-gray-400 p-2 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-300"
+        class="animate-pulse rounded-full bg-gray-300 hover:bg-gray-400 p-2 text-gray-900"
     >
         <svg
             width="24"
