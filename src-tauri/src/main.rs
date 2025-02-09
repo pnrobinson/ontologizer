@@ -2,25 +2,25 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod goannot;
-use tauri::generate_handler;
-use tauri::{WindowBuilder, command};
 use std::env;
+use tauri::generate_handler;
+use tauri::{command};
 
-use goannot::process_file; 
+use goannot::process_file;
 
 fn main() {
-  tauri::Builder::default()
-    .invoke_handler(generate_handler![process_file])
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+    tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
+        .invoke_handler(generate_handler![process_file])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
-
-
 
 #[tauri::command]
 fn open_stats_window() {
     let is_dev = env::var("TAURI_ENV").unwrap_or_default() == "development";
-    
+
     let url = if is_dev {
         "http://localhost:3000/new-window" // Development URL
     } else {
@@ -37,7 +37,4 @@ fn open_stats_window() {
 
         // Additional window-specific logic if needed
     });*/
-  }
-
-
-
+}

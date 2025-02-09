@@ -1,29 +1,29 @@
+use lazy_static::lazy_static;
+use num::Integer;
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::fmt::format;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::iter::Map;
-use num::Integer;
 use std::str::FromStr;
-use tauri::command;
-use serde::Serialize;
 use std::sync::Mutex;
-use lazy_static::lazy_static;
+use tauri::command;
 
 #[derive(Debug)]
 pub enum InputError {
     NegatedAnnotation, // we skip negated annotations
     MalformedLine(String),
-    ParsingError(String),   // Another error type
-    // Add other error kinds as needed
+    ParsingError(String), // Another error type
+                          // Add other error kinds as needed
 }
 
 impl std::fmt::Display for InputError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match *self {
             InputError::NegatedAnnotation => write!(f, "Negated annotation detected"),
-            InputError::MalformedLine(ref s) => write!(f, "Malformed line: {}", s), 
-            InputError::ParsingError(ref s) => write!(f, "Parsing error: {}", s), 
+            InputError::MalformedLine(ref s) => write!(f, "Malformed line: {}", s),
+            InputError::ParsingError(ref s) => write!(f, "Parsing error: {}", s),
         }
     }
 }
@@ -58,7 +58,7 @@ enum GoTermRelation {
     IsActiveIn,
     LocatedIn,
     ColocalizesWith,
-    PartOf
+    PartOf,
 }
 
 impl std::fmt::Display for GoTermRelation {
@@ -73,8 +73,12 @@ impl std::fmt::Display for GoTermRelation {
             GoTermRelation::ActsUpstreamOfOrWithin => "acts_upstream_of_or_within",
             GoTermRelation::ActsUpstreamOfNegativeEffect => "acts_upstream_of_negative_effect",
             GoTermRelation::ActsUpstreamOfPositiveEffect => "acts_upstream_of_positive_effect",
-            GoTermRelation::ActsUpstreamOfOrWithinNegativeEffect => "acts_upstream_of_or_within_negative_effect",
-            GoTermRelation::ActsUpstreamOfOrWithinPositiveEffect =>  "acts_upstream_of_or_within_positive_effect",
+            GoTermRelation::ActsUpstreamOfOrWithinNegativeEffect => {
+                "acts_upstream_of_or_within_negative_effect"
+            }
+            GoTermRelation::ActsUpstreamOfOrWithinPositiveEffect => {
+                "acts_upstream_of_or_within_positive_effect"
+            }
             GoTermRelation::LocatedIn => "located_in",
             GoTermRelation::PartOf => "part_of",
             GoTermRelation::ColocalizesWith => "colocalizes_with",
@@ -100,28 +104,33 @@ impl FromStr for GoTermRelation {
             "acts_upstream_of_or_within" => Ok(GoTermRelation::ActsUpstreamOfOrWithin),
             "acts_upstream_of_negative_effect" => Ok(GoTermRelation::ActsUpstreamOfNegativeEffect),
             "acts_upstream_of_positive_effect" => Ok(GoTermRelation::ActsUpstreamOfPositiveEffect),
-            "acts_upstream_of_or_within_negative_effect" => Ok(GoTermRelation::ActsUpstreamOfOrWithinNegativeEffect),
-            "acts_upstream_of_or_within_positive_effect" => Ok(GoTermRelation::ActsUpstreamOfOrWithinPositiveEffect),
+            "acts_upstream_of_or_within_negative_effect" => {
+                Ok(GoTermRelation::ActsUpstreamOfOrWithinNegativeEffect)
+            }
+            "acts_upstream_of_or_within_positive_effect" => {
+                Ok(GoTermRelation::ActsUpstreamOfOrWithinPositiveEffect)
+            }
             "is_active_in" => Ok(GoTermRelation::IsActiveIn),
             "part_of" => Ok(GoTermRelation::PartOf),
             "colocalizes_with" => Ok(GoTermRelation::ColocalizesWith),
-            _ => Err(InputError::ParsingError(format!("Did not recognize '{}' as a GOA relation.",s))),
+            _ => Err(InputError::ParsingError(format!(
+                "Did not recognize '{}' as a GOA relation.",
+                s
+            ))),
         }
     }
-    
-   
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 enum EviCode {
-    EXP, // inferred from experiment
-    HTP, //  Inferred from High Throughput Experiment 
-    PHYLO, // Phylogenetically inferred annotations
+    EXP,           // inferred from experiment
+    HTP,           //  Inferred from High Throughput Experiment
+    PHYLO,         // Phylogenetically inferred annotations
     COMPUTATIONAL, // computational analysis evidence codes i
-    AUTHOR, // Author statement evidence
-    IC, // Curator statement 
-    ND, // No biological Data available 
-    IEA, // Inferred from Electronic Annotation (IEA)
+    AUTHOR,        // Author statement evidence
+    IC,            // Curator statement
+    ND,            // No biological Data available
+    IEA,           // Inferred from Electronic Annotation (IEA)
 }
 
 impl FromStr for EviCode {
@@ -130,14 +139,17 @@ impl FromStr for EviCode {
     fn from_str(s: &str) -> Result<Self, InputError> {
         match s {
             "EXP" | "IDA" | "IPI" | "IMP" | "IGI" | "IEP" => Ok(EviCode::EXP),
-            "HTP" | "HDA" | "HMP" | "HGI" | "HEP"  => Ok(EviCode::HTP),
-            "IBA" | "IBD" | "IKR" | "IRD"  => Ok(EviCode::PHYLO),
-            "ISS" | "ISO" | "ISA" | "ISM" |"IGC" |"RCA"  => Ok(EviCode::COMPUTATIONAL),
+            "HTP" | "HDA" | "HMP" | "HGI" | "HEP" => Ok(EviCode::HTP),
+            "IBA" | "IBD" | "IKR" | "IRD" => Ok(EviCode::PHYLO),
+            "ISS" | "ISO" | "ISA" | "ISM" | "IGC" | "RCA" => Ok(EviCode::COMPUTATIONAL),
             "TAS" | "NAS" => Ok(EviCode::AUTHOR),
             "IC" => Ok(EviCode::IC),
             "ND" => Ok(EviCode::ND),
             "IEA" => Ok(EviCode::IEA),
-            _ => Err(InputError::ParsingError(format!("Did not recognize '{}' as EvidenceCode.",s))),
+            _ => Err(InputError::ParsingError(format!(
+                "Did not recognize '{}' as EvidenceCode.",
+                s
+            ))),
         }
     }
 }
@@ -145,7 +157,7 @@ impl FromStr for EviCode {
 enum Aspect {
     F,
     P,
-    C
+    C,
 }
 
 impl FromStr for Aspect {
@@ -156,33 +168,40 @@ impl FromStr for Aspect {
             "F" => Ok(Aspect::F),
             "P" => Ok(Aspect::P),
             "C" => Ok(Aspect::C),
-            _ => Err(InputError::ParsingError(format!("Did not recognize '{}' as Aspect.",s))),
+            _ => Err(InputError::ParsingError(format!(
+                "Did not recognize '{}' as Aspect.",
+                s
+            ))),
         }
     }
 }
 
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct TermId {
-    pub value: String
+    pub value: String,
 }
 
 impl TermId {
     pub fn new(prfx: &str, id: &str) -> Self {
         TermId {
-            value: format!("{}:{}", prfx, id)
+            value: format!("{}:{}", prfx, id),
         }
     }
 
     pub fn from_curie(curie: &str) -> Result<Self, InputError> {
         let tokens: Vec<&str> = curie.split(':').collect();
         if tokens.iter().count() != 2 {
-            return Err(InputError::ParsingError(format!("CURIE expected to have 2 fields, but had {} fields: {}", 
-                tokens.iter().count(), curie)));
+            return Err(InputError::ParsingError(format!(
+                "CURIE expected to have 2 fields, but had {} fields: {}",
+                tokens.iter().count(),
+                curie
+            )));
         }
-        Ok(TermId{value: curie.to_string()})
+        Ok(TermId {
+            value: curie.to_string(),
+        })
     }
 }
-
 
 #[derive(Clone)]
 struct GoAnnot {
@@ -195,47 +214,50 @@ struct GoAnnot {
 }
 
 impl GoAnnot {
-
-    pub fn new<T: Into<String>>(term: TermId,
-                            symbol: T,
-                            relation: GoTermRelation,
-                            gene_ontology_id: TermId,
-                            evicode: EviCode,
-                            aspect: Aspect
-                         ) -> Self {
+    pub fn new<T: Into<String>>(
+        term: TermId,
+        symbol: T,
+        relation: GoTermRelation,
+        gene_ontology_id: TermId,
+        evicode: EviCode,
+        aspect: Aspect,
+    ) -> Self {
         GoAnnot {
             gene_product_id: term,
             gene_product_symbol: symbol.into(),
-            relation: relation, 
+            relation: relation,
             go_id: gene_ontology_id,
             evidence_code: evicode,
-            aspect: aspect
+            aspect: aspect,
         }
-
-
     }
 }
 
-
 struct GoAnnotations {
     annotation_list: Vec<GoAnnot>,
-    version: String
+    version: String,
 }
 
 /// To be used for serialization to display the most interesting characteristics of the annotation as a table
 #[derive(Serialize)]
 struct AnnotationStat {
     key: String,
-    value: String
+    value: String,
 }
 
 impl AnnotationStat {
     pub fn from_string(item: &str, val: &str) -> Self {
-        AnnotationStat{key: item.to_string(), value: val.to_string()}
+        AnnotationStat {
+            key: item.to_string(),
+            value: val.to_string(),
+        }
     }
 
-    pub fn from_int<T: Integer+std::fmt::Display>(item: &str, val: T) -> Self {
-        AnnotationStat{key: item.to_string(), value: format!("{}",val)}
+    pub fn from_int<T: Integer + std::fmt::Display>(item: &str, val: T) -> Self {
+        AnnotationStat {
+            key: item.to_string(),
+            value: format!("{}", val),
+        }
     }
 }
 
@@ -243,7 +265,10 @@ fn annotation_descriptive_stats(go_annots: &Vec<GoAnnot>) -> Vec<AnnotationStat>
     let mut annots = Vec::new();
     let annot_count = go_annots.len();
     annots.push(AnnotationStat::from_int("Total annotations", annot_count));
-    let unique_symbols: HashSet<_> = go_annots.iter().map(|annot| &annot.gene_product_symbol).collect();
+    let unique_symbols: HashSet<_> = go_annots
+        .iter()
+        .map(|annot| &annot.gene_product_symbol)
+        .collect();
     annots.push(AnnotationStat::from_int("genes", unique_symbols.len()));
     // Count relation types
     let mut relation_counts = HashMap::new();
@@ -259,29 +284,38 @@ fn annotation_descriptive_stats(go_annots: &Vec<GoAnnot>) -> Vec<AnnotationStat>
 
 const GOA_EXPECTED_FIELDS: usize = 17;
 
-
-
 /// Process a line in go-annotation-file-gaf-format-2.2
 fn process_annotation_line(line: &str) -> Result<GoAnnot, InputError> {
     let tokens: Vec<&str> = line.split('\t').collect();
     if tokens.iter().count() != GOA_EXPECTED_FIELDS {
-        return Err(InputError::MalformedLine(format!("GOA lines expected to have {} fields, but line had {} fields: {}", 
-            GOA_EXPECTED_FIELDS, tokens.iter().count(), line)));
+        return Err(InputError::MalformedLine(format!(
+            "GOA lines expected to have {} fields, but line had {} fields: {}",
+            GOA_EXPECTED_FIELDS,
+            tokens.iter().count(),
+            line
+        )));
     }
     let gene_product_id = TermId::new(tokens[0], tokens[1]);
     let symbol = tokens[2];
     let relation = GoTermRelation::from_str(tokens[3])?; // return on error immediately
-    let go_id = TermId::from_curie(tokens[4])?;// return on error immediately
-    let evidence = EviCode::from_str(tokens[6])?;// return on error immediately
-    let aspect = Aspect::from_str(tokens[8])?;// return on error immediately
-    Ok(GoAnnot::new(gene_product_id, symbol, relation, go_id, evidence, aspect))
+    let go_id = TermId::from_curie(tokens[4])?; // return on error immediately
+    let evidence = EviCode::from_str(tokens[6])?; // return on error immediately
+    let aspect = Aspect::from_str(tokens[8])?; // return on error immediately
+    Ok(GoAnnot::new(
+        gene_product_id,
+        symbol,
+        relation,
+        go_id,
+        evidence,
+        aspect,
+    ))
 }
 
 #[command]
 pub fn process_file(path: String) -> Result<String, String> {
     let file = File::open(&path).map_err(|e| format!("Failed to open file: {}", e))?;
     let reader = BufReader::new(file);
-    
+
     let mut annotations = vec![];
     let mut annotation_stats: Vec<AnnotationStat> = vec![];
     let mut num_negated_annos = 0;
@@ -291,40 +325,35 @@ pub fn process_file(path: String) -> Result<String, String> {
                 if content.starts_with("!") {
                     print!("{}", content);
                     if content.starts_with("!date-generated: ") {
-                        let date_gen = &content[("!date-generated: ".len()+1)..];
-                        annotation_stats.push(AnnotationStat::from_string("date generation", date_gen));
+                        let date_gen = &content[("!date-generated: ".len() + 1)..];
+                        annotation_stats
+                            .push(AnnotationStat::from_string("date generation", date_gen));
                     }
                 } else {
                     let goann = process_annotation_line(&content);
                     match goann {
                         Ok(go_annotation) => annotations.push(go_annotation),
-                        Err(e) => {
-                            match &e {
-                                InputError::NegatedAnnotation => num_negated_annos += 1,
-                                other => println!("{}", other)
-                            }
-                        }
+                        Err(e) => match &e {
+                            InputError::NegatedAnnotation => num_negated_annos += 1,
+                            other => println!("{}", other),
+                        },
                     }
                 }
-            },
+            }
             Err(e) => return Err(format!("Error reading file: {}", e)),
         }
     }
     print!("Parsed {} annotations", annotations.len());
-    annotation_stats.push(AnnotationStat::from_int("Negated annotations", num_negated_annos));
+    annotation_stats.push(AnnotationStat::from_int(
+        "Negated annotations",
+        num_negated_annos,
+    ));
     let mut dataset = GO_ANNOTATIONS.lock().unwrap();
     *dataset = annotations.clone(); // Overwrite dataset
     let stats_counts = annotation_descriptive_stats(&annotations);
     annotation_stats.extend(stats_counts);
     serde_json::to_string(&annotation_stats).map_err(|e| format!("Serialization error: {}", e))
 }
-
-
-
-
-
-
-
 
 #[cfg(test)]
 mod test {
@@ -334,38 +363,38 @@ mod test {
 
     #[test]
     fn test_valid_evidence_codes() {
-        let tests = vec![("EXP", EviCode::EXP),
-                        ("IDA", EviCode::EXP),
-                        ("IPI", EviCode::EXP),
-                        ("IMP", EviCode::EXP),
-                        ("IEP", EviCode::EXP),
-                        ("HTP", EviCode::HTP),
-                        ("HDA", EviCode::HTP),
-                        ("HMP", EviCode::HTP),
-                        ("HGI", EviCode::HTP),
-                        ("HEP", EviCode::HTP),
-                        ("IBA", EviCode::PHYLO),
-                        ("IBD", EviCode::PHYLO),
-                        ("IKR", EviCode::PHYLO),
-                        ("IRD", EviCode::PHYLO),
-                        ("ISS", EviCode::COMPUTATIONAL),
-                        ("ISO", EviCode::COMPUTATIONAL),
-                        ("ISA", EviCode::COMPUTATIONAL),
-                        ("ISM", EviCode::COMPUTATIONAL),
-                        ("ISS", EviCode::COMPUTATIONAL),
-                        ("ISS", EviCode::COMPUTATIONAL),
-                        ("TAS", EviCode::AUTHOR),
-                        ("NAS", EviCode::AUTHOR),
-                        ("IC", EviCode::IC),
-                        ("ND", EviCode::ND),
-                        ("IEA", EviCode::IEA), 
-                        ];
+        let tests = vec![
+            ("EXP", EviCode::EXP),
+            ("IDA", EviCode::EXP),
+            ("IPI", EviCode::EXP),
+            ("IMP", EviCode::EXP),
+            ("IEP", EviCode::EXP),
+            ("HTP", EviCode::HTP),
+            ("HDA", EviCode::HTP),
+            ("HMP", EviCode::HTP),
+            ("HGI", EviCode::HTP),
+            ("HEP", EviCode::HTP),
+            ("IBA", EviCode::PHYLO),
+            ("IBD", EviCode::PHYLO),
+            ("IKR", EviCode::PHYLO),
+            ("IRD", EviCode::PHYLO),
+            ("ISS", EviCode::COMPUTATIONAL),
+            ("ISO", EviCode::COMPUTATIONAL),
+            ("ISA", EviCode::COMPUTATIONAL),
+            ("ISM", EviCode::COMPUTATIONAL),
+            ("ISS", EviCode::COMPUTATIONAL),
+            ("ISS", EviCode::COMPUTATIONAL),
+            ("TAS", EviCode::AUTHOR),
+            ("NAS", EviCode::AUTHOR),
+            ("IC", EviCode::IC),
+            ("ND", EviCode::ND),
+            ("IEA", EviCode::IEA),
+        ];
         for test in tests {
             let ecode = EviCode::from_str(test.0);
             assert!(ecode.is_ok());
             assert_eq!(ecode.unwrap(), test.1);
         }
-    
     }
 
     /// Make sure we get an error with an invalid evidence code
@@ -375,12 +404,12 @@ mod test {
         assert!(ecode.is_err());
         match ecode {
             Err(e) => {
-                assert_eq!(e.to_string(), "Did not recognize 'something' as EvidenceCode.".to_string());
-            },
+                assert_eq!(
+                    e.to_string(),
+                    "Did not recognize 'something' as EvidenceCode.".to_string()
+                );
+            }
             Ok(_) => panic!("Expected an error, but got Ok."),
         }
     }
-
-
-
 }
