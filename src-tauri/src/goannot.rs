@@ -5,7 +5,6 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::format;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::iter::Map;
 use std::str::FromStr;
 use std::sync::Mutex;
 use tauri::command;
@@ -176,16 +175,23 @@ impl FromStr for Aspect {
     }
 }
 
+/// Simple structure to represent a Gene Ontology or other Term identifier
+///
+/// We do not care much about the format of the ids, only that they are valid CURIEs. 
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct TermId {
     pub value: String,
 }
 
 impl TermId {
-    pub fn new(prfx: &str, id: &str) -> Self {
-        TermId {
-            value: format!("{}:{}", prfx, id),
+    pub fn new(prfx: &str, id: &str) -> Result<Self, InputError> {
+        if prfx.contains(":") {
+            return Err(InputError::ParsingError(format!("Prefix not allowed to contain colon - '{}'", prfx)));
         }
+        if id.contains(":") {
+            return Err(InputError::ParsingError(format!("TermId suffix (id) not allowed to contain colon - '{}'", id)));
+        }
+        Ok(TermId {value: format!("{}:{}", prfx, id)})
     }
 
     pub fn from_curie(curie: &str) -> Result<Self, InputError> {
@@ -197,12 +203,13 @@ impl TermId {
                 curie
             )));
         }
-        Ok(TermId {
-            value: curie.to_string(),
-        })
+        TermId::new(tokens[0], tokens[1])
     }
 }
 
+/// A Gene Ontology Annotation, corresponding to one line of the GOA file
+/// 
+/// We only store a subset of the information that is important for the analysis
 #[derive(Clone)]
 struct GoAnnot {
     gene_product_id: TermId,
@@ -295,7 +302,7 @@ fn process_annotation_line(line: &str) -> Result<GoAnnot, InputError> {
             line
         )));
     }
-    let gene_product_id = TermId::new(tokens[0], tokens[1]);
+    let gene_product_id = TermId::new(tokens[0], tokens[1])?;
     let symbol = tokens[2];
     let relation = GoTermRelation::from_str(tokens[3])?; // return on error immediately
     let go_id = TermId::from_curie(tokens[4])?; // return on error immediately
@@ -408,7 +415,7 @@ mod test {
             Err(e) => {
                 assert_eq!(
                     e.to_string(),
-                    "Did not recognize 'something' as EvidenceCode.".to_string()
+                    "Parsing error: Did not recognize 'something' as EvidenceCode.".to_string()
                 );
             }
             Ok(_) => panic!("Expected an error, but got Ok."),

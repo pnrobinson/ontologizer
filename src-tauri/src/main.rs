@@ -3,10 +3,9 @@
 
 mod goannot;
 mod window_handler;
+mod gontology;
+mod exact_fisher;
 use std::env;
-use tauri::generate_handler;
-use tauri::{command};
-
 use goannot::process_file;
 
 fn main() {
