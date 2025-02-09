@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod goannot;
+mod window_handler;
 use std::env;
 use tauri::generate_handler;
 use tauri::{command};
@@ -26,6 +27,7 @@ fn open_stats_window() {
     } else {
         "tauri://localhost/new-window" // Production URL (local file access)
     };
+   //let handle = tauri::AppHandle::clone();
     /*  Create the new window
     let handle = tauri::AppHandle::clone();
     std::thread::spawn(move || {

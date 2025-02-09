@@ -75,8 +75,10 @@
 <button on:click={openFileDialog} class="text-white">Open File</button>
 
 {#if $filePath}
-  <p class="text-white">Selected file: {$filePath}</p>
-  <div class="overflow-x-auto">
+  
+<div class="w-4/5 mx-auto border border-gray-300 rounded-lg shadow-lg p-4 bg-white">
+  <p class="text-sm">Selected file: {$filePath}</p>
+    <div class="overflow-x-auto max-h-64 overflow-y-auto">
   <table class="min-w-full border border-gray-300 shadow-lg rounded-lg">
     <thead class="bg-gray-800 text-white uppercase text-sm">
       <tr>
@@ -94,6 +96,7 @@
   </tbody>
 </table>
 </div>
+  </div>
 
 {/if}
 

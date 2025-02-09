@@ -319,15 +319,17 @@ pub fn process_file(path: String) -> Result<String, String> {
     let mut annotations = vec![];
     let mut annotation_stats: Vec<AnnotationStat> = vec![];
     let mut num_negated_annos = 0;
+    let mut parsed_date = false; // The GOA format has multiple entries for date-generated. We only want the first
     for line in reader.lines() {
         match line {
             Ok(content) => {
                 if content.starts_with("!") {
-                    print!("{}", content);
-                    if content.starts_with("!date-generated: ") {
-                        let date_gen = &content[("!date-generated: ".len() + 1)..];
+                    //print!("{}", content);
+                    if content.starts_with("!date-generated: ") && ! parsed_date {
+                        let date_gen = &content[("!date-generated: ".len() + 2)..];
+                        parsed_date = true;
                         annotation_stats
-                            .push(AnnotationStat::from_string("date generation", date_gen));
+                            .push(AnnotationStat::from_string("version", date_gen));
                     }
                 } else {
                     let goann = process_annotation_line(&content);
