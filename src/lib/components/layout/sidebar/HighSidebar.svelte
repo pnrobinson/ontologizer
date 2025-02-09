@@ -4,12 +4,12 @@
 
     const menus = [
         {
-            name: 'Home',
+            name: 'Setup',
             url: '/',
             svg: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'
         },
         {
-            name: 'About',
+            name: 'Analysis',
             url: '/about',
             svg: 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z'
         },
@@ -27,7 +27,7 @@
     <div class="px-8 pt-2 w-full flex items-center h-20">
         <img src={logo} alt="logo" class="w-8" />
         <p class="pl-3 mt-2 text-xl text-gray-300 font-medium">
-            Tauri + SvelteKit
+            Ontologizer
         </p>
     </div>
     <ul class="mt-12 px-3 text-gray-300 font-medium">

@@ -40,17 +40,20 @@
       }
     }
   }
+
+  function openGoaStatsWindow() {
+    // Call the Tauri API to open a new window
+    invoke('open_new_window');
+  }
 </script>
 
-
+<div class="p-5">
+  <h1 class="text-gray-600 dark:text-gray-300 text-5xl">Setup</h1>
+</div>
 <div class="card shadow-sm">
   <h2 class="text-lg">GO Annotations</h2>
   <div class="flex items-center space-x-3 mt-3">
-    <!-- File upload button -->
-    <label for="file-upload" class="cursor-pointer text-blue-500 hover:text-blue-600">
-      Load GOA file
-      <input type="file" id="file-upload" class="hidden"/>
-    </label>
+    <button on:click={openFileDialog} class="cursor-pointer text-blue-500 hover:text-blue-600">Load GOA File</button>
    <!-- Icon with two states (Red Circle with Black X / Blue Checkmark) -->
    <button id="icon-toggle" class="p-2 rounded-full bg-transparent hover:bg-transparent">
     <svg id="icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -67,9 +70,7 @@
   </div>
 </div>
 
-<div class="p-5">
-  <h1 class="text-gray-600 dark:text-gray-300 text-5xl">Setup</h1>
-</div>
+
 <button on:click={openFileDialog} class="text-white">Open File</button>
 
 {#if $filePath}
