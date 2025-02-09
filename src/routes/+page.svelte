@@ -43,7 +43,7 @@
 
   function openGoaStatsWindow() {
     // Call the Tauri API to open a new window
-    invoke('open_new_window');
+    invoke('open_stats_window');
   }
 </script>
 
