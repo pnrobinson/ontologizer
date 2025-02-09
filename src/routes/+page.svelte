@@ -19,6 +19,7 @@
   }
 
   async function processFile(path: string) {
+    console.log("PROCESS FILE")
     try {
       const jsonData = await invoke<string>("process_file", { path });
         const icon = document.getElementById('icon');

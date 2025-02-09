@@ -1,0 +1,15 @@
+{
+    "identifier": "migrated",
+    "decriptions": "permissions that were migrated from v1",
+    "local": true,
+    "windows": [
+        "main"
+    ],
+    "permissions": [
+        "core:default",
+        "core:window:allow-create",
+        "core:window:allow-set-fullscreen",
+        "core:webview:allow-create-webview-window",
+        "dialog:allow-open"
+    ]
+}
