@@ -8,10 +8,26 @@ body {
 
 @layer components {
     .card {
+        position: relative;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 300px;
+       /* align-items: center;
+        justify-content: center;*/
+        width: 800px;
         height: 100px;
+        background-color: azure;
+        border-radius: 8px;
+        border: 0.7px solid #eee;
+        padding: 8px;
+        margin: 10px;
+    }
+
+    .card-title {
+        position: absolute;
+        align-self: left;
+        top: -10px;   /* Adjust based on border thickness */
+        left: 20px;   /* Adjust for alignment */
+        background: white;  /* Matches background color */
+        padding: 0 5px;
+        font-weight: bold;
     }
 }

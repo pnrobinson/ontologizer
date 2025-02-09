@@ -21,15 +21,51 @@
   async function processFile(path: string) {
     try {
       const jsonData = await invoke<string>("process_file", { path });
+        const icon = document.getElementById('icon');
+        if (icon) {
+          icon.innerHTML = `
+          <circle cx="12" cy="12" r="10" class="fill-blue-500"/>
+          <path d="M8 12L10 14L16 8" class="stroke-white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        `;
+        }
         annotation_stats.set(JSON.parse(jsonData));
     } catch (error) {
       console.error("Error processing file:", error);
+      const icon = document.getElementById('icon');
+      if (icon) {
+        icon.innerHTML = `
+          <circle cx="12" cy="12" r="10" class="fill-red-500"/>
+          <path d="M8 8L16 16M16 8L8 16" class="stroke-black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        `;
+      }
     }
   }
 </script>
 
 
-<div class="card"></div>
+<div class="card shadow-sm">
+  <h2 class="text-lg">GO Annotations</h2>
+  <div class="flex items-center space-x-3 mt-3">
+    <!-- File upload button -->
+    <label for="file-upload" class="cursor-pointer text-blue-500 hover:text-blue-600">
+      Load GOA file
+      <input type="file" id="file-upload" class="hidden"/>
+    </label>
+   <!-- Icon with two states (Red Circle with Black X / Blue Checkmark) -->
+   <button id="icon-toggle" class="p-2 rounded-full bg-transparent hover:bg-transparent">
+    <svg id="icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <!-- Default icon: Red Circle with Black X -->
+      <circle cx="12" cy="12" r="5" class="fill-red-500"/>
+      <path d="M7 7L17 17M17 7L7 17" class="stroke-black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+    <!-- Button to open a new component -->
+    <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-100">
+      Show GOA statistics
+    </button>
+  </div>
+</div>
 
 <div class="p-5">
   <h1 class="text-gray-600 dark:text-gray-300 text-5xl">Setup</h1>
