@@ -7,7 +7,7 @@
     import Footer from '$lib/components/layout/Footer.svelte';
 
     let navOpen: boolean = false;
-    let bg_colors = 'dark:bg-slate-950 bg-white';
+    let bg_colors = 'bg-white';
 
     function sidebarHandler() {
         navOpen = !navOpen;
